@@ -41,26 +41,6 @@ int main(void) {
         free(line);//libero memoria alloc
         free(args);
     }while (status);
-  /*
-    char s1[13] = "Hola a todos";
-    char s2[3] = "la";
-
-    printf( "s1=%s\n", s1 );
-    printf( "s2=%s\n", s2 );
-    if(strstr( s1, s2 )!='\0') printf( "strstr(s1,s2) = %s\n", strstr( s1, s2 )+2 );
-
-    char s11[11] = "Hola";
-    char s21[6] = "amigos";
-
-    printf( "s1=%s\t", s11 );
-    printf( "s2=%s\n", s21 );
-    strncat( s11, s21, 3 );
-    printf( "s1=%s\n", s11 );
-    int bufsize = BUFSIZE;
-    char *buffer = malloc(sizeof(char) * bufsize);
-    strcpy(buffer,getpwuid(geteuid ())->pw_dir);
-    printf("%s",buffer);
-*/
     return 0;
 }
 
