@@ -13,6 +13,7 @@ int bash_cd(char **args);
 int bashComands(char **args);
 char * read_line(void);
 char ** split_line(char *line);
+char * bash_cdHome(char *PATH);
 
 /**
    @brief Main .
@@ -24,14 +25,14 @@ int main(void) {
     char **args;
     int status;
     //agregado
-    register struct passwd *pw; //obtener usuario
+    //register struct passwd *pw; //obtener usuario
     char hostname[BUFSIZE];// buffer para el  Pc name
     char cwd[BUFSIZE];// directorio actual
 
     gethostname(hostname, BUFSIZE-1);//get PC name
-    pw = getpwuid(geteuid ()); //con la funcion get id obnet el nombre
+    //pw = getpwuid(geteuid ()); //con la funcion get id obnet el nombre
     do {
-        printf("%s@%s %s $ ",pw->pw_name,hostname,getcwd(cwd, sizeof(cwd)));
+        printf("%s@%s %s $ ",getpwuid(geteuid ())->pw_name,hostname,getcwd(cwd, sizeof(cwd)));
 
         line = read_line();
         args = split_line(line);//args es un arreglo de segentos de la cadena principal
@@ -40,7 +41,26 @@ int main(void) {
         free(line);//libero memoria alloc
         free(args);
     }while (status);
+  /*
+    char s1[13] = "Hola a todos";
+    char s2[3] = "la";
 
+    printf( "s1=%s\n", s1 );
+    printf( "s2=%s\n", s2 );
+    if(strstr( s1, s2 )!='\0') printf( "strstr(s1,s2) = %s\n", strstr( s1, s2 )+2 );
+
+    char s11[11] = "Hola";
+    char s21[6] = "amigos";
+
+    printf( "s1=%s\t", s11 );
+    printf( "s2=%s\n", s21 );
+    strncat( s11, s21, 3 );
+    printf( "s1=%s\n", s11 );
+    int bufsize = BUFSIZE;
+    char *buffer = malloc(sizeof(char) * bufsize);
+    strcpy(buffer,getpwuid(geteuid ())->pw_dir);
+    printf("%s",buffer);
+*/
     return 0;
 }
 
@@ -158,7 +178,7 @@ int bashComands(char **args) {
     else{
         fprintf(stderr, "No such file or drirctory\n");
         //perror("No such file or drirctory");
-        return -1;
+        return 1;
     }
 
 }
@@ -172,14 +192,26 @@ int bash_cd(char **PATH)
 {
     if (PATH[1] == NULL) {
         fprintf(stderr, "expected argument to \"cd\"\n");
-    } else {
+    }
+    else {
+        if(strstr( PATH[1],"~/" )!='\0') {
+            strcpy(PATH[1],bash_cdHome(strstr( PATH[1],"~/" )+1));
+        }
         if (chdir(PATH[1]) != 0) {
             perror("bash");
         }
     }
+    //  getpwuid(geteuid ())->pw_dir
     return 1;
 }
 
+char * bash_cdHome(char *PATH){
+    int bufsize = BUFSIZE;
+    char *buffer = malloc(sizeof(char) * bufsize);
+    strcpy(buffer,getpwuid(geteuid ())->pw_dir);//obtengo el /home/userX
+    strncat(buffer, PATH, bufsize);
+    return buffer;
+}
 //si el comando emocional ./ compio el path dondes estoy y concateno
 //si ../ borro ultimo y concateno
 //si ~/ /home y concateno.
