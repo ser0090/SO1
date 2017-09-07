@@ -158,7 +158,7 @@ int bashComands(char **args) {
     else{
         fprintf(stderr, "No such file or drirctory\n");
         //perror("No such file or drirctory");
-        return -1;
+        return 1;
     }
 
 }
