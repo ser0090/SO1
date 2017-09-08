@@ -30,7 +30,7 @@ int buscarArchivo(char* archivo,char*path){
         strcpy(path,getcwd(NULL,0));
         strcat(path,archivo+1);
 
-    }else if(strstr(archivo,"/")==archivo){
+    }else if((strstr(archivo,"/"))==archivo){
         strcpy(path,archivo);
     }else{
         return buscarConPATH(path,archivo);
@@ -39,7 +39,7 @@ int buscarArchivo(char* archivo,char*path){
 
 
     if(access(path,F_OK)!=0){
-        path[0]="\0\0";
+        *path="\0\0";
         return -1;
     }
 
@@ -62,7 +62,7 @@ int buscarConPATH(char* path,char* archivo){
         aux=strtok(NULL,":");
     }
 
-    path[0]="\0\0";
+    *path="\0\0";
     return-1;
 
 }
