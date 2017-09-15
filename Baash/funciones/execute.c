@@ -7,8 +7,10 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <stdlib.h>
+//#include <stdbool.h>
 
-int ejecutar (char *path, char *args[]){
+
+int ejecutar (char *path, char *args[], int flag){
     int pid;
     int status;
     strcpy(args[0],path);
@@ -22,8 +24,10 @@ int ejecutar (char *path, char *args[]){
         execvp(path, args);
         printf("Exec error \n");
         exit(1);
-    } else 	/* Parent executes here */
-        wait(&status);
+    } else {    /* Parent executes here */
+        if(!flag)
+            wait(&status);
+    }
     //printf("Hello there! \n");
     return 0;
 
