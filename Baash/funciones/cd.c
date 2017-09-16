@@ -11,11 +11,11 @@ char *bash_cdHome(char *PATH);
 int bash_cd(char **PATH)
 {
     if (PATH[0] == NULL) {
-        fprintf(stderr, "expected argument to \"cd\"\n");
+        PATH[0]=getpwuid(geteuid ())->pw_dir;
     }
     else {
         if(strstr( PATH[0],"~/" )!='\0') {
-            strcpy(PATH[0],bash_cdHome(strstr( PATH[0],"~/" )+1));
+            PATH[0]=bash_cdHome(strstr( PATH[0],"~/" )+1);
         }
         if (chdir(PATH[0]) != 0) {
             perror("bash");
@@ -32,4 +32,3 @@ char *bash_cdHome(char *PATH){
     strncat(buffer, PATH, bufsize);
     return buffer;
 }
-

@@ -7,13 +7,24 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <stdlib.h>
-//#include <stdbool.h>
 
+int ejecutar (char *path, char *args[], int flag);
 
+void findAndExecute(char** args,int concurrentFlag){
+    char p[1024];
+    if (buscarArchivo(args[0], p) == 0) {
+
+        args[0]=p;
+        ejecutar(p, args,concurrentFlag);
+
+    } else {
+        printf("\nno existe\n");
+    }
+}
 int ejecutar (char *path, char *args[], int flag){
     int pid;
     int status;
-    strcpy(args[0],path);
+    //strcpy(args[0],path);
     pid = vfork();
     if (pid<0) {
         printf("Fork error \n");
@@ -30,6 +41,5 @@ int ejecutar (char *path, char *args[], int flag){
     }
     //printf("Hello there! \n");
     return 0;
-
 
 }
