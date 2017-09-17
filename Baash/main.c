@@ -5,9 +5,9 @@
 #include <unistd.h>
 
 #include "funciones/cd.c"
-#include "funciones/buscarArchivo.c"
 #include "funciones/execute.c"
 #include "funciones/ComandosInternos.c"
+#include "funciones/findRedirectCommand.c"
 #define BUFSIZE 1024
 #define SEG_DELIMITADOR " \n"
 
@@ -44,6 +44,10 @@ int main() {
         int index=0;
 
         do {
+            char* inFile=NULL;
+            char* outFile=NULL;
+            findRedirectCommand(comands[index],&inFile,&outFile);
+
             args[0] = strtok(comands[index], SEG_DELIMITADOR);//toma el comando. primer cadena antes de un espacio.
             args[1] = strtok(NULL," "); //como el parametro es NULL, toma la ultma cadena q se le paso y sigue avanzando
             for (int i = 2; args[i] != NULL && i < 20; i++) {// obtengo todos los argumentos
@@ -52,7 +56,7 @@ int main() {
 
             if(comandosInternos(args)!=0) {
 
-                findAndExecute(args, concurrentFlag);
+                findAndExecute(args, concurrentFlag,inFile,outFile);
             }
             index++;
         }while(comands[index]!=NULL && *comands[index]!='\0');
