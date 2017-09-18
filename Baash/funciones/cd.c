@@ -13,14 +13,14 @@ int bash_cd(char **PATH)
     if (PATH[0] == NULL) {
         PATH[0]=getpwuid(geteuid ())->pw_dir;
     }
-    else {
-        if(strstr( PATH[0],"~/" )!='\0') {
+    else if(strstr( PATH[0],"~/" )!='\0') {
             PATH[0]=bash_cdHome(strstr( PATH[0],"~/" )+1);
         }
-        if (chdir(PATH[0]) != 0) {
+
+    if (chdir(PATH[0]) != 0) {
             perror("bash");
-        }
     }
+
     //  getpwuid(geteuid ())->pw_dir
     return 1;
 }

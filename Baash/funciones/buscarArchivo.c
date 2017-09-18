@@ -10,7 +10,7 @@ int buscarConPATH(char* path ,char* archivo);
  * @return 0 si se encontro el archivo, -1 si el archivo o la ruta no existen
  */
 int buscarArchivo(char* archivo,char*path){
-    //char path[1000];
+
     if(strstr( archivo,"~/" )!='\0') {
         strcpy(path,bash_cdHome(strstr( archivo,"~/" )+1));
     }else if(strstr( archivo,"../" )!='\0'){
@@ -24,7 +24,7 @@ int buscarArchivo(char* archivo,char*path){
             aux+=1;
         }
         *ultimo='\0';
-        //strcpy(path,cwd);
+
         strcat(path,archivo+2);
     }else if(strstr( archivo,"./" )!='\0'){
         strcpy(path,getcwd(NULL,0));
@@ -39,7 +39,7 @@ int buscarArchivo(char* archivo,char*path){
 
 
     if(access(path,F_OK)!=0){
-        *path="\0\0";
+        *path='\0';
         return -1;
     }
 
@@ -62,7 +62,7 @@ int buscarConPATH(char* path,char* archivo){
         aux=strtok(NULL,":");
     }
 
-    *path="\0\0";
+    *path='\0';
     return-1;
 
 }

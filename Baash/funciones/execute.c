@@ -9,36 +9,38 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include "buscarArchivo.c"
+#define NULL_I 0//como el NULL declarado en las otras funciones es un puntero, molestan los warnings
+                //defino NULL_I como un nulo para comparacion de valores de datos
+int ejecutar (char *path, char *args[], int flag, int fdin , int fdout);
 
-int ejecutar (char *path, char *args[], int flag, char* RedirectStdin , char* RedirectStdout);
-
-void findAndExecute(char** args,int concurrentFlag,char* RedirectStdin , char* RedirectStdout){
+void findAndExecute(char** args,int concurrentFlag,int fdin , int fdout){
     char p[1024];
     if (buscarArchivo(args[0], p) == 0) {
 
         args[0]=p;
-        ejecutar(p, args,concurrentFlag,RedirectStdin,RedirectStdout);
+        ejecutar(p, args,concurrentFlag,fdin ,fdout);
 
     } else {
         printf("\nno existe\n");
     }
 }
-int ejecutar (char *path, char *args[], int flag,char* RedirectStdin , char* RedirectStdout){
+int ejecutar (char *path, char *args[], int flag,int fdin , int fdout){
     int pid;
     int status;
-    //strcpy(args[0],path);
+
     pid = vfork();
     if (pid<0) {
         printf("Fork error \n");
         exit(1);
     }
     if(pid == 0){ /* Child executes here */
-        if(RedirectStdin!=NULL){
-            int fdin=open(RedirectStdin,O_RDONLY,0600);
+
+        if(fdin!=NULL_I){  //Redireccion de la stdin
+
             dup2(fdin,STDIN_FILENO);
         }
-        if(RedirectStdout!=NULL){
-            int fdout=open(RedirectStdout,O_WRONLY | O_CREAT,0600);
+        if(fdout!=NULL_I){ //Redireccion de la stdout
+
             dup2(fdout,STDOUT_FILENO);
 
         }
@@ -49,7 +51,6 @@ int ejecutar (char *path, char *args[], int flag,char* RedirectStdin , char* Red
         if(!flag)
             wait(&status);
     }
-    //printf("Hello there! \n");
     return 0;
 
 }
