@@ -58,7 +58,6 @@ int main() {
                 if(pipePrevio!=NULL_I){
                     fdin=pipePrevio;
                     pipePrevio=NULL_I;
-                    concurrentFlag=1;
                 }
                 if(pipes[pipeIndex+1]!=NULL && *pipes[pipeIndex+1]!='\0'){ // si existe un siguiente comando luego del operador pipe,
                     int fd[2];                                              //crea un pipe y cambia la stdout del proceso actual
