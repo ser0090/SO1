@@ -13,6 +13,14 @@
                 //defino NULL_I como un nulo para comparacion de valores de datos
 int ejecutar (char *path, char *args[], int flag, int fdin , int fdout);
 
+/**
+ * encunetra el path de archivo ejecutable y lo ejecuta
+ * @param args argumento del archivo
+ * @param concurrentFlag bandera si el se ejecuta concurrentemente
+ *        si es 1 de ejecuta concurrentemente
+ * @param fdin
+ * @param fdout
+ */
 void findAndExecute(char** args,int concurrentFlag,int fdin , int fdout){
     char p[1024];
     if (buscarArchivo(args[0], p) == 0) {
@@ -24,6 +32,16 @@ void findAndExecute(char** args,int concurrentFlag,int fdin , int fdout){
         printf("\nno existe\n");
     }
 }
+
+/**
+ * ejecuta el archivo
+ * @param path la ubicacion del archivo
+ * @param args los argumentos asociados al archivo
+ * @param flag badera si se ejecuta concurrentemente
+ * @param fdin
+ * @param fdout
+ * @return 0 si fue exitoso (proceso padre)
+ */
 int ejecutar (char *path, char *args[], int flag,int fdin , int fdout){
     int pid;
     int status;

@@ -16,36 +16,34 @@
 //Ver la funcion dup2() para redirigir la stdin y stdout
 //usar los flags WarningON, y cppcheck
 
-
-
-
 int main() {
     char input[BUFSIZE];
     char *args[20];
-   // char* p= malloc(sizeof(char) * BUFSIZE);
 
     char hostname[BUFSIZE];// buffer para el  Pc name
-
-
     gethostname(hostname, BUFSIZE-1);//get PC name
 
     while(1) {
-        printf("%s@%s %s $ ", getpwuid(geteuid())->pw_name, hostname, getcwd(NULL, 0));
+        printf("\n%s@%s %s $ ", getpwuid(geteuid())->pw_name, hostname, getcwd(NULL, 0));
 
         fgets(input, BUFSIZE, stdin);// pide el comando. se hace con fgets xq permite leer la linea completa
-        input[strlen(input) - 1] = NULL_I;//como el string se toma desde archivo, se debe borrar el ultimo caracter(\n)
+        input[strlen(input) - 1] = 0;//como el string se toma desde archivo, se debe borrar el ultimo caracter(\n)
                                         // xq trae problemas para la lectura de los argumentos
 
         char *comands[]={NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};//comandos divididos por ampersand
 
-        int concurrentFlag=1;//indica si los procesos se ejecutaran concurrentemente;
+        int concurrentFlag=0;//indica si los procesos se ejecutaran concurrentemente;
+        if(strstr(input," &")!='\0'){
+            concurrentFlag=1;
+        }
         comands[0]=strtok_r(input, "&", comands+1);
-        if(comands[1]==NULL || *comands[1]=='\0'){concurrentFlag=0;}
+        /*if(comands[1]==NULL || *comands[1]=='\0'){
+            concurrentFlag=0;
+        }*/
         int index=0;
 
-
         do {
-            char* pipes[10]={NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};//comandos divididos por ampersand
+            char* pipes[10]={NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};//comandos divididos por |
             int pipePrevio=NULL_I;//indica si el ultimo comando genero un pipe,
                                 // de ser cierto contiene el descriptor de la salida del pipe
 
@@ -88,6 +86,5 @@ int main() {
         }while(comands[index]!=NULL && *comands[index]!='\0');
 
         }
-
 
 }
