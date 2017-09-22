@@ -7,27 +7,25 @@ int buscarConPATH(char* path ,char* archivo);
  * busca el archivo y copia la ruta
  * @param archivo
  * @param path
- * @return 0 si se encontro el archivo
- * @return -1 si el archivo o la ruta no existen
+ * @return 0 si se encontro el archivo, -1 si el archivo o la ruta no existen
  */
 int buscarArchivo(char* archivo,char*path){
 
     if(strstr( archivo,"~/" )!='\0') {
         strcpy(path,bash_cdHome(strstr( archivo,"~/" )+1));
     }else if(strstr( archivo,"../" )!='\0'){
-        //recora el directorio actual para llegar al directorio padre
-        getcwd(path,1024); //obtiene el directorio actual en Path
+
+        getcwd(path,1000); //recora el directorio actual para llegar al directorio padre
+
         char* aux=path;
         char* ultimo;
         while(*aux!='\0'){
-            if(*aux=='/'){
-                ultimo=aux;
-            }
+            if(*aux=='/'){ultimo=aux;}
             aux+=1;
         }
         *ultimo='\0';
 
-        strcat(path,archivo+2);//concatena el dirtorio path y el camino dado
+        strcat(path,archivo+2);
     }else if(strstr( archivo,"./" )!='\0'){
         strcpy(path,getcwd(NULL,0));
         strcat(path,archivo+1);
@@ -35,7 +33,6 @@ int buscarArchivo(char* archivo,char*path){
     }else if((strstr(archivo,"/"))==archivo){
         strcpy(path,archivo);
     }else{
-        //si no proporciona un camino lo busco
         return buscarConPATH(path,archivo);
 
     }
@@ -50,10 +47,8 @@ int buscarArchivo(char* archivo,char*path){
 }
 /**
  * busca el archivo en las rutas por defeco en la variable PATH
- * a travez de la funcion getenv()
  * @param path
- * @return 0 si encontro el archivo
- * @return -1 si el archivo no existe
+ * @return
  */
 int buscarConPATH(char* path,char* archivo){
     char PATH[1000];
@@ -63,9 +58,7 @@ int buscarConPATH(char* path,char* archivo){
         strcpy(path,aux);
         strcat(path,"/");
         strcat(path,archivo);
-        if(access(path,F_OK)==0){
-            return 0;
-        }
+        if(access(path,F_OK)==0){return 0;}
         aux=strtok(NULL,":");
     }
 
