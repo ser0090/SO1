@@ -20,25 +20,45 @@ struct Nodos{
  * @param nodo a liberar
  * @return
  */
-Nodo * blockFree(Nodo* nodo){
+void blockFree(Nodo* nodo){
     nodo->free=true;
-    if(nodo->next->free == true){//si el siguiente bloque esta libre, uno los bloques
-        if(nodo->next->next==NULL){
-            sbrk((-1 )*(nodo->size + sizeof(Nodo)));
-            nodo->free=true;
-            nodo->next=NULL;
-            nodo->size=0;
-        }else {
-            nodo->size += nodo->next->size + sizeof(Nodo);//recalculo el tamaño del bloque completo.
-            nodo->next->next->previous = nodo;//actualiza el puntero a previo del siguiente nodo siguiente
-            nodo->next = nodo->next->next;//actualizo el valor de next del nodo actual
+    if(nodo->previous==NULL){ // indica que es el primer nodo
+        if(nodo->next!=NULL) {//indica que el primer nodo NO es unico, si el primer nodo es unico, no cambia nada, solo indica libre
+            if (nodo->next->free == true) {
+                nodo->size += nodo->next->size + sizeof(Nodo *);
+                nodo->next = nodo->next->next;
+                nodo->next->previous = nodo;
+
+            }
+
         }
+        return;
+    }else if(nodo->next!=NULL) {//indica si es un nodo central
+            if(nodo->next->free==true) {
+                nodo->size += nodo->next->size + sizeof(Nodo *);
+                nodo->next = nodo->next->next;
+                nodo->next->previous = nodo;
+            }
+    } // no es necesario saber si el nodo es final en este punto, eso se resuelve mas adelante
+
+    Nodo* previous = nodo->previous; //necesito almacenar este valor para reducir el brk
+
+    if(nodo->next==NULL){// se vueleve a consultar esto ya que si el nodo era el ante ultimo y se fusiono
+                        // con el ultimo se habra convertido ahora en el ultimo
+        brk(nodo);//muevo el brk hasta el inicio del nodo, eliminando su contenido y el nodo
+        previous->next=NULL;// el nodo previo sera ahora el ultimo
+
     }
-    if(nodo->previous!=NULL && nodo->previous->free == true){
-        return blockFree(nodo->previous);
+
+    if(previous->free == true){// si el nodo anterior esta libre.
+           blockFree(nodo->previous); // se llama esta funcion recursivamente provocando que la fusion sea siempre con nodos siguientes
     }
-    return nodo;
-}
+
+    }
+
+
+
+
 /**
  * busca el primer bloque con tamaño mayor o igual al tamaño del parametro
  * @param bytes , tamaño del bloque
@@ -46,31 +66,45 @@ Nodo * blockFree(Nodo* nodo){
  * @return puntero al nodo encontrado. si llega al final de la lista(next->NULL)retornara ese nodo.
  */
 void * firstFit(int bytes, Nodo* comienzo){
-    while(comienzo->next!=NULL && comienzo->size < bytes){
+    while(comienzo->next!=NULL){
+        if(comienzo->free==true && (comienzo->size >= bytes)){
+            break;
+        }
         comienzo = comienzo->next;
+
+
     }
     return comienzo;
 
 }
 
 /**
- * permite crear un bloque.en principio sera al final de la lista
+ * permite crear un bloque al final de la lista
  * @param final nodo final de la lista
  * @return puntero al nodo creado
  */
-Nodo* crearBloque(Nodo* final, int size){
+Nodo* crearBloque(int size){
     Nodo * nuevo=sbrk(size + sizeof(Nodo));
     if(nuevo==(void *)-1){return NULL;}
-    nuevo =sbrk(0)-sizeof(Nodo);//valor del nuevo nodo
 
     nuevo->free=true;
     nuevo->next=NULL;
-    nuevo->previous=final;
-    nuevo->size=0;
+    nuevo->size=size;
+    return nuevo;
+}
 
-    final->next=nuevo;
-    final->size=size;
-    return final;
+void split(Nodo* nodo,int size){
+
+    Nodo* nuevo = (void*)nodo+size+ sizeof(Nodo);
+    nuevo->size = nodo->size - size - sizeof(Nodo);
+    nuevo->next=nodo->next;
+    nuevo->previous = nodo;
+
+    nuevo->next->previous=nuevo;
+
+    nodo->size= size;
+    nodo->next=nuevo;
+
 }
 
 /**
@@ -80,9 +114,15 @@ Nodo* crearBloque(Nodo* final, int size){
  */
 Nodo* blockAlloc(int size,Nodo* comienzo){
     Nodo* libre=firstFit(size,comienzo);//busca un bloque libre
-    if(libre->next==NULL){
-        libre = crearBloque(libre,size);
-        if(libre==NULL){return NULL;}
+
+    if(libre->next==NULL && (libre->free==false || libre->size >= size)){// si el nodo retornado es el ultimo de la lista,
+        Nodo* nuevo = crearBloque(size);                                      //y no cumple con el tamaño o no esta libre crea un nuevo nodo
+        if(nuevo==NULL){return NULL;}
+        nuevo->previous=libre;
+        libre->next=nuevo;
+        libre=nuevo;
+    }else if(libre->size > (size+ sizeof(Nodo))){ // si el tamaño del nodo es suficintemente grande como para un split lo hace.
+        split(libre,size);
     }
 
     libre->free=false;
